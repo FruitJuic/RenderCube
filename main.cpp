@@ -69,9 +69,9 @@ void processInput(GLFWwindow *window)
 	if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 		yRotate += rotateSpeed;
 	if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		zRotate -= rotateSpeed;
-	if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		zRotate += rotateSpeed;
+	if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		zRotate -= rotateSpeed;
 }
 
 int main()
