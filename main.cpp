@@ -19,12 +19,16 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "}\n\0";
 
 int localWidth = 800;
-int localHeight = 600;
+int localHeight = 800;
 float aspectRatio = (float)localWidth / (float)localHeight;
 float xMove = 0.0f;
 float yMove = 0.0f;
 float zMove = 0.0f;
+float xRotate = 0.0f;
+float yRotate = 0.0f;
+float zRotate = 0.0f;
 float moveSpeed = 1.0f;
+float rotateSpeed = 0.01f;
 
 void rotate()
 {
@@ -56,6 +60,18 @@ void processInput(GLFWwindow *window)
 		xMove += moveSpeed;
 	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		xMove -= moveSpeed;
+	if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		xRotate -= rotateSpeed;
+	if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		xRotate += rotateSpeed;
+	if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		yRotate -= rotateSpeed;
+	if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		yRotate += rotateSpeed;
+	if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		zRotate -= rotateSpeed;
+	if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		zRotate += rotateSpeed;
 }
 
 int main()
@@ -68,7 +84,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Wireframe", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(localWidth, localHeight, "Wireframe", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -83,7 +99,7 @@ int main()
 		return -1;
 	}
 
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, localWidth, localHeight);
  
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -189,18 +205,27 @@ int main()
 		}
 		origin.Translate(xMove, yMove, zMove);
 
+		for (int i = 0; i < points.size(); i++)
+		{
+			points[i].Rotate(xRotate, yRotate, zRotate, origin.x, origin.y, origin.z);
+		}
+
 		xMove = 0.0f;
 		yMove = 0.0f;
 		zMove = 0.0f;
+		xRotate = 0.0f;
+		yRotate = 0.0f;
+		zRotate = 0.0f;
 
-		std::vector<Point> projectedPoints = projectPoints(points);
+		std::vector<Point> projectedPoints = projectPoints(points, localWidth);
 
 		float vertices[projectedPoints.size() * 3];
 
 		for (int i = 0; i < projectedPoints.size(); i++)
 		{
-			vertices[i * 3] = projectedPoints[i].x / (localWidth / 2.0f);
-			vertices[i * 3 + 1] = projectedPoints[i].y / (localHeight / 2.0f);
+			// Need to take Z into account when scaling to screen size
+			vertices[i * 3] = projectedPoints[i].x / (localWidth/2.0f);
+			vertices[i * 3 + 1] = projectedPoints[i].y / (localHeight/2.0f);
 			vertices[i * 3 + 2] = projectedPoints[i].z;
 		}
 
