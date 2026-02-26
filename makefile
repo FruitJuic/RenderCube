@@ -11,7 +11,7 @@ TARGET = Renderer
 TARGET_DEL = Renderer
 
 # Source files
-SRCS = main.cpp projection.cpp points.cpp glad.c
+SRCS = main.cpp projection.cpp points.cpp glad.cpp
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)
