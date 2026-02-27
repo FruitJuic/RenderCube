@@ -4,8 +4,8 @@
 #include "points.h"
 #include <vector>
 
-float projectedCoordinate(float, float, int);
-Point projectPoint(Point, int);
-std::vector<Point> projectPoints(std::vector<Point>, int);
+float projectedCoordinate(float, float);
+Point projectPoint(Point);
+std::vector<Point> projectPoints(std::vector<Point>);
 
 #endif

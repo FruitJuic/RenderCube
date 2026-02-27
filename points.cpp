@@ -39,10 +39,10 @@ void Point::Rotate(float xAngle, float yAngle, float zAngle, float pivotX, float
 	float cosZ = cos(zAngle);
 	float sinZ = sin(zAngle);
 
-	float newX2 = cosZ * (x - pivotX) - sinZ * (y - pivotY) + pivotX;
-	float newY2 = sinZ * (x - pivotX) + cosZ * (y - pivotY) + pivotY;
-	x = newX2;
-	y = newY2;
+	newX = cosZ * (x - pivotX) - sinZ * (y - pivotY) + pivotX;
+	newY = sinZ * (x - pivotX) + cosZ * (y - pivotY) + pivotY;
+	x = newX;
+	y = newY;
 }
 
 void Point::Scale(float xScale, float yScale, float zScale, float pivotX, float pivotY, float pivotZ)
@@ -50,4 +50,9 @@ void Point::Scale(float xScale, float yScale, float zScale, float pivotX, float 
 	x = pivotX + (x - pivotX) * xScale;
 	y = pivotY + (y - pivotY) * yScale;
 	z = pivotZ + (z - pivotZ) * zScale;
+}
+
+bool Point::Equals(Point other)
+{
+	return x == other.x && y == other.y && z == other.z;
 }
