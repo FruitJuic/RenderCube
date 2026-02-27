@@ -35,9 +35,9 @@ std::vector<unsigned int> cubeIndices = {
 
 Shape::Shape(Point m_position, Point m_size, ShapeType type)
 {
-	position = m_position;
-	size = m_size;
-	rotation = Point(0, 0, 0);
+	position = Vec3{m_position.x, m_position.y, m_position.z};
+	size = Vec3{m_size.x, m_size.y, m_size.z};
+	rotation = Vec3{0, 0, 0};
 	localWidth = 800;
 	localHeight = 800;
 	switch (type) {
@@ -50,64 +50,54 @@ Shape::Shape(Point m_position, Point m_size, ShapeType type)
 	}
 }
 
-void Shape::Move(Point translation)
+void Shape::Move(Vec3 translation)
 {
 	for (Point& point : worldPoints) {
 		point.Translate(translation.x, translation.y, translation.z);
 	}
 }
 
-void Shape::Scale(Point scale, Point pivot)
+void Shape::Scale(Vec3 scale, Vec3 pivot)
 {
 	for (Point& point : worldPoints) {
 		point.Scale(scale.x, scale.y, scale.z, pivot.x, pivot.y, pivot.z);
 	}
 }
 
-void Shape::Rotate(Point rotation, Point pivot)
+void Shape::Rotate(Vec3 rotation, Vec3 pivot)
 {
 	for (Point& point : worldPoints) {
 		point.Rotate(rotation.x, rotation.y, rotation.z, pivot.x, pivot.y, pivot.z);
 	}
 }
 
-void Shape::ChangeRotation(Point newRotation)
+void Shape::ChangeRotation(Vec3 newRotation)
 {
-	rotation.Translate(newRotation.x, newRotation.y, newRotation.z);
-	if(!newRotation.Equals(Point(0, 0, 0)))
-	{
-		std::cout << "Rotation changed to: " << rotation.x << ", " << rotation.y << ", " << rotation.z << std::endl;
-	}
+	rotation.x += newRotation.x;
+	rotation.y += newRotation.y;
+	rotation.z += newRotation.z;
 }
 
-void Shape::ChangePosition(Point newPosition)
+void Shape::ChangePosition(Vec3 newPosition)
 {
-	this->position.Translate(newPosition.x, newPosition.y, newPosition.z);
-	if(!newPosition.Equals(Point(0, 0, 0)))
-	{
-		std::cout << "Position changed to: " << this->position.x << ", " << this->position.y << ", " << this->position.z << std::endl;
-		std::cout << "Buffer position: " << this->bufferPosition.x << ", " << this->bufferPosition.y << ", " << this->bufferPosition.z << std::endl;
-	}
+	this->position.x += newPosition.x;
+	this->position.y += newPosition.y;
+	this->position.z += newPosition.z;
 }
 
-void Shape::ChangeSize(Point newSize)
+void Shape::ChangeSize(Vec3 newSize)
 {
-	size.Translate(newSize.x, newSize.y, newSize.z);
-	if(!newSize.Equals(Point(0, 0, 0)))
-	{
-		std::cout << "Size changed to: " << size.x << ", " << size.y << ", " << size.z << std::endl;
-	}
+	size.x += newSize.x;
+	size.y += newSize.y;
+	size.z += newSize.z;
 }
 
 void Shape::updateBuffer()
 {
 	// Check if any transform values changed, regen buffer if so
-	//std::cout << this->position.x << ", " << this->position.y << ", " << this->position.z << std::endl;
-	//std::cout << bufferPosition.x << ", " << bufferPosition.y << ", " << bufferPosition.z << std::endl;
-	if(!(this->position.Equals(this->bufferPosition)) || !(size.Equals(bufferSize)) || !(rotation.Equals(bufferRotation)) || localWidth != bufferWidth || localHeight != bufferHeight)
+	if(!(position.x == bufferPosition.x && position.y == bufferPosition.y && position.z == bufferPosition.z) || !(size.x == bufferSize.x && size.y == bufferSize.y && size.z == bufferSize.z) || !(rotation.x == bufferRotation.x && rotation.y == bufferRotation.y && rotation.z == bufferRotation.z) || localWidth != bufferWidth || localHeight != bufferHeight)
 	{
 		updateWorldPoints();
-		std::cout << "Updating buffer" << std::endl;
 
 		bufferPosition = position;
 		bufferSize = size;

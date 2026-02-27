@@ -1,6 +1,12 @@
 #ifndef POINTS_H
 #define POINTS_H
 
+struct Vec3 {
+	float x;
+	float y;
+	float z;
+};
+
 class Point
 {
 public:

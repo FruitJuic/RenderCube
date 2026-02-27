@@ -14,30 +14,30 @@ public:
 	unsigned int getVertex(int, int);
 	int indicesSize() { return indices.size(); }
 	Shape(Point, Point, ShapeType);
-	void ChangeRotation(Point);
-	void ChangePosition(Point);
-	void ChangeSize(Point);
-private:
+	void ChangeRotation(Vec3);
+	void ChangePosition(Vec3);
+	void ChangeSize(Vec3);
+	private:
 	std::vector<Point> points;
 	std::vector<Point> worldPoints;
 	std::vector<Point> projectedPoints;
 	std::vector<unsigned int> indices;
-	Point position;
-	Point size;
-	Point rotation;
+	Vec3 position;
+	Vec3 size;
+	Vec3 rotation;
 	int localWidth;
 	int localHeight;
-	Point bufferPosition;
-	Point bufferSize;
-	Point bufferRotation;
+	Vec3 bufferPosition;
+	Vec3 bufferSize;
+	Vec3 bufferRotation;
 	int bufferWidth;
 	int bufferHeight;
 	unsigned int VBO;
 	unsigned int VAO;
 	unsigned int EBO;
-	void Move(Point);
-	void Scale(Point, Point);
-	void Rotate(Point, Point);
+	void Move(Vec3);
+	void Scale(Vec3, Vec3);
+	void Rotate(Vec3, Vec3);
 	void updateBuffer();
 	void updateWorldPoints();
 };

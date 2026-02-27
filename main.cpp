@@ -45,21 +45,21 @@ void processInput(GLFWwindow *window)
 	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		yMove -= moveSpeed;
-	if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		yMove += moveSpeed;
+	if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		yMove -= moveSpeed;
 	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		zMove -= moveSpeed;
-	if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		zMove += moveSpeed;
+	if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		zMove -= moveSpeed;
 	if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		xMove += moveSpeed;
-	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		xMove -= moveSpeed;
+	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		xMove += moveSpeed;
 	if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		xRotate -= rotateSpeed;
-	if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 		xRotate += rotateSpeed;
+	if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		xRotate -= rotateSpeed;
 	if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 		yRotate -= rotateSpeed;
 	if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
@@ -192,8 +192,8 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		cube.ChangePosition(Point(xMove, yMove, zMove));
-		cube.ChangeRotation(Point(xRotate, yRotate, zRotate));
+		shapes[0].ChangePosition(Vec3{xMove, yMove, zMove});
+		shapes[1].ChangeRotation(Vec3{xRotate, yRotate, zRotate});
 
 		xMove = 0.0f;
 		yMove = 0.0f;
