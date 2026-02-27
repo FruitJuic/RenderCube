@@ -22,16 +22,17 @@ const char *fragmentShaderSource = "#version 330 core\n"
 int localWidth = 800;
 int localHeight = 800;
 float aspectRatio = (float)localWidth / (float)localHeight;
-float xMove = 0.0f;
-float yMove = 0.0f;
-float zMove = 0.0f;
-float xRotate = 0.0f;
-float yRotate = 0.0f;
-float zRotate = 0.0f;
-float moveSpeed = 1.0f;
-float rotateSpeed = 0.01f;
+float playerMoveX = 0.0f;
+float playerMoveY = 0.0f;
+float playerMoveZ = 0.0f;
+float modeX = 0.0f;
+float modeY = 0.0f;
+float modeZ = 0.0f;
+float modeSpeed[3] = {1.0f, 0.01f, 0.5f,};
 // 0=Object Spawn, 1=Object Move, 2=Object Rotate, 3=Object Scale
 int mode = 0;
+int modeObject = 0;
+bool cycleObject = false;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -46,29 +47,39 @@ void processInput(GLFWwindow *window)
 	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		yMove += moveSpeed;
+		playerMoveY += moveSpeed;
 	if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		yMove -= moveSpeed;
+		playerMoveY -= moveSpeed;
 	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		zMove += moveSpeed;
+		playerMoveZ += moveSpeed;
 	if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		zMove -= moveSpeed;
+		playerMoveZ -= moveSpeed;
 	if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		xMove -= moveSpeed;
+		playerMoveX -= moveSpeed;
 	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		xMove += moveSpeed;
+		playerMoveX += moveSpeed;
 	if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		xRotate += rotateSpeed;
+		modeX += modeSpeed[mode];
 	if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		xRotate -= rotateSpeed;
+		modeX -= modeSpeed[mode];
 	if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		yRotate -= rotateSpeed;
+		modeY -= modeSpeed[mode];
 	if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		yRotate += rotateSpeed;
+		modeY += modeSpeed[mode];
 	if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		zRotate += rotateSpeed;
+		modeZ += modeSpeed[mode];
 	if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		zRotate -= rotateSpeed;
+		modeZ -= modeSpeed[mode];
+	if(glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
+		mode = 0;
+	if(glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+		mode = 1;
+	if(glfwGetKey(window, GLFW_KEY_2) == GLFW_KEY_PRESS)
+		mode = 2;
+	if(glfwGetKey(window, GLFW_KEY_3) == GLFW_KEY_PRESS)
+		mode = 3;
+	if(glfwGetKey(window, GLFW_KEY_T) == GLFW_KEY_RELEASE)
+		cycleObject = true;
 }
 
 int main()
@@ -143,40 +154,7 @@ int main()
 	glUseProgram(shaderProgram);
 	// End shader setup
 
-	std::vector<Point> points = {
-		Point(-1, 1, -1), // A 0
-		Point(1, 1, -1), // B 1
-		Point(-1, -1, -1), // C 2
-		Point(1, -1, -1), // D 3
-		Point(-1, 1, 1), // E 4
-		Point(1, 1, 1), // F 5 
-		Point(-1, -1, 1), // G 6
-		Point(1, -1, 1) // H 7
-	};
-
 	Point origin = Point(0, 0, 0);
-
-	//float vertices[] = {
-	//	0.5f,  0.5f, 0.0f,  // top right
-	//	0.5f, -0.5f, 0.0f,  // bottom right
-	//	-0.5f, -0.5f, 0.0f,  // bottom left
-	//	-0.5f,  0.5f, 0.0f   // top left 
-    	//};
-
-    	//unsigned int indices[] = {  // note that we start from 0!
-	//	0, 1,  // AB
-	//	0, 2 , // AC 
-	//	2, 3, // CD
-	//	1, 3, // BD 
-	//	4, 5, // EF
-	//	4, 6, // EG
-	//	6, 7, // GH
-	//	5, 7, // FH
-	//	0, 4, // AE
-	//	1, 5, // BF
-	//	2, 6, // CG
-	//	3, 7 // DH
-    	//};
 
 	Shape cube = Shape(origin, Point(50.0f, 50.0f, 50.0f), CUBE);
 	Shape cube2 = Shape(Point(100, 0, 0), Point(50.0f, 50.0f, 50.0f), CUBE);
@@ -193,8 +171,28 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		shapes[0].Move(Point(xMove, yMove, zMove));
-		shapes[1].Rotate(Point(xRotate, yRotate, zRotate));
+		playerPosition.Translate(xMove, yMove, zMove);
+
+		if(cycleObject)
+		{
+			++modeObject;
+			if(modeObject >= shapes.size())
+				modeObject = 0;
+			cycleObject = false;
+		}
+		
+		if(mode == 1)
+		{
+			shapes[modeObject].Move(Point(modeX, modeY, modeZ));
+		}
+		else if(mode == 2)
+		{
+			shapes[modeObject].Rotate(Point(modeX, modeY, modeZ));
+		}
+		else if(mode == 3)
+		{
+			shapes[modeObject].Scale(Point(modeX, modeY, modeZ))
+		}
 
 		xMove = 0.0f;
 		yMove = 0.0f;
