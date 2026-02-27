@@ -33,11 +33,14 @@ std::vector<unsigned int> cubeIndices = {
 };
 
 
-Shape::Shape(Point m_position, Point m_size, ShapeType type)
+Shape::Shape(Point _position, Point _size, ShapeType type)
 {
-	position = Vec3{m_position.x, m_position.y, m_position.z};
-	size = Vec3{m_size.x, m_size.y, m_size.z};
-	rotation = Vec3{0, 0, 0};
+	position = _position;
+	size = _size;
+	rotation = Point(0, 0, 0);
+	initialPosition = position;
+	initialSize = size;
+	initialRotation = rotation;
 	localWidth = 800;
 	localHeight = 800;
 	switch (type) {
@@ -50,52 +53,55 @@ Shape::Shape(Point m_position, Point m_size, ShapeType type)
 	}
 }
 
-void Shape::Move(Vec3 translation)
+void Shape::Rotate(Point newRotation)
 {
-	for (Point& point : worldPoints) {
-		point.Translate(translation.x, translation.y, translation.z);
-	}
+	rotation.Translate(newRotation)
 }
 
-void Shape::Scale(Vec3 scale, Vec3 pivot)
+void Shape::SetRotation(Point newRotation)
 {
-	for (Point& point : worldPoints) {
-		point.Scale(scale.x, scale.y, scale.z, pivot.x, pivot.y, pivot.z);
-	}
+	rotation = newRotation;
 }
 
-void Shape::Rotate(Vec3 rotation, Vec3 pivot)
+void Shape::ResetRotation()
 {
-	for (Point& point : worldPoints) {
-		point.Rotate(rotation.x, rotation.y, rotation.z, pivot.x, pivot.y, pivot.z);
-	}
+	rotation = initialRotation;
 }
 
-void Shape::ChangeRotation(Vec3 newRotation)
+void Shape::Move(Point newPosition)
 {
-	rotation.x += newRotation.x;
-	rotation.y += newRotation.y;
-	rotation.z += newRotation.z;
+	position.Translate(newPosition);
 }
 
-void Shape::ChangePosition(Vec3 newPosition)
+void Shape::SetPosition(Point newPosition)
 {
-	this->position.x += newPosition.x;
-	this->position.y += newPosition.y;
-	this->position.z += newPosition.z;
+	position = newPosition;
 }
 
-void Shape::ChangeSize(Vec3 newSize)
+void Shape::ResetPosition()
 {
-	size.x += newSize.x;
-	size.y += newSize.y;
-	size.z += newSize.z;
+	position = initialPosition;
+}
+
+void Shape::Scale(Point newSize)
+{
+	size.Translate(newSize)
+}
+
+void Shape::SetScale(Point newSize)
+{
+	size = newSize;
+}
+
+void Shape::ResetScale()
+{
+	size = initialSize;
 }
 
 void Shape::updateBuffer()
 {
 	// Check if any transform values changed, regen buffer if so
-	if(!(position.x == bufferPosition.x && position.y == bufferPosition.y && position.z == bufferPosition.z) || !(size.x == bufferSize.x && size.y == bufferSize.y && size.z == bufferSize.z) || !(rotation.x == bufferRotation.x && rotation.y == bufferRotation.y && rotation.z == bufferRotation.z) || localWidth != bufferWidth || localHeight != bufferHeight)
+	if(!(playerPosition.Equals(bufferPlayerPosition)) || !(position.Equals(bufferPosition)) || !(size.Equals(bufferSize)) || !(rotation.Equals(bufferRotation)) || localWidth != bufferWidth || localHeight != bufferHeight)
 	{
 		updateWorldPoints();
 
@@ -104,6 +110,7 @@ void Shape::updateBuffer()
 		bufferRotation = rotation;
 		bufferWidth = localWidth;
 		bufferHeight = localHeight;
+		bufferPlayerPosition = playerPosition;
 
 		projectedPoints = projectPoints(worldPoints);
 
@@ -156,15 +163,27 @@ void Shape::updateWorldPoints()
 		worldPoints.push_back(point);
 	}
 
-	Move(position);
-	Scale(size, position);
-	Rotate(rotation, position);
+	Point interPosition = position;
+	interPosition.Translate(-playerPosition.x, -playerPosition.y, -playerPosition.z)
+
+	for (Point& point : worldPoints) {
+		point.Translate(interPosition.x, interPosition.y, interPosition.z);
+	}
+
+	for (Point& point : worldPoints) {
+		point.Scale(size.x, size.y, size.z, position.x, position.y, position.z);
+	}
+
+	for (Point& point : worldPoints) {
+		point.Rotate(rotation.x, rotation.y, rotation.z, position.x, position.y, position.z);
+	}
 }
 
-unsigned int Shape::getVertex(int localWidth, int localHeight)
+unsigned int Shape::getVertex(Point playerPosition, int localWidth, int localHeight)
 {
 	this->localWidth = localWidth;
 	this->localHeight = localHeight;
+	this->playerPosition = playerPosition;
 	updateBuffer();
 	return VAO;
 }

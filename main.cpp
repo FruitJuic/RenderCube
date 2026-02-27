@@ -30,7 +30,8 @@ float yRotate = 0.0f;
 float zRotate = 0.0f;
 float moveSpeed = 1.0f;
 float rotateSpeed = 0.01f;
-
+// 0=Object Spawn, 1=Object Move, 2=Object Rotate, 3=Object Scale
+int mode = 0;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -177,9 +178,9 @@ int main()
 	//	3, 7 // DH
     	//};
 
-	Shape cube = Shape(origin, Point{50.0f, 50.0f, 50.0f}, CUBE);
-	Shape cube2 = Shape(Point(100, 0, 0), Point{50.0f, 50.0f, 50.0f}, CUBE);
-	
+	Shape cube = Shape(origin, Point(50.0f, 50.0f, 50.0f), CUBE);
+	Shape cube2 = Shape(Point(100, 0, 0), Point(50.0f, 50.0f, 50.0f), CUBE);
+	Point playerPosition = Point(0, 0, 0);
 	std::vector<Shape> shapes = {cube, cube2};
 
 	while(!glfwWindowShouldClose(window))
@@ -192,8 +193,8 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		shapes[0].ChangePosition(Vec3{xMove, yMove, zMove});
-		shapes[1].ChangeRotation(Vec3{xRotate, yRotate, zRotate});
+		shapes[0].Move(Point(xMove, yMove, zMove));
+		shapes[1].Rotate(Point(xRotate, yRotate, zRotate));
 
 		xMove = 0.0f;
 		yMove = 0.0f;
@@ -203,7 +204,7 @@ int main()
 		zRotate = 0.0f;
 
 		for (Shape& activeObject : shapes) {
-			unsigned int VAO = activeObject.getVertex(localWidth, localHeight);
+			unsigned int VAO = activeObject.getVertex(playerPosition, localWidth, localHeight);
 
 			glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 			glDrawElements(GL_LINES, activeObject.indicesSize(), GL_UNSIGNED_INT, 0);

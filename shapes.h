@@ -11,33 +11,41 @@ enum ShapeType {
 class Shape
 {
 public:
-	unsigned int getVertex(int, int);
+	unsigned int getVertex(Point, int, int);
 	int indicesSize() { return indices.size(); }
 	Shape(Point, Point, ShapeType);
-	void ChangeRotation(Vec3);
-	void ChangePosition(Vec3);
-	void ChangeSize(Vec3);
-	private:
+	void Rotate(Point);
+	void Move(Point);
+	void Scale(Point);
+	void SetRotation(Point);
+	void SetPosition(Point);
+	void SetScale(Point);
+	void ResetRotation();
+	void ResetPosition();
+	void ResetScale();
+private:
 	std::vector<Point> points;
 	std::vector<Point> worldPoints;
 	std::vector<Point> projectedPoints;
 	std::vector<unsigned int> indices;
-	Vec3 position;
-	Vec3 size;
-	Vec3 rotation;
+	Point initialPosition;
+	Point initialSize;
+	Point initialRotation;
+	Point position;
+	Point size;
+	Point rotation;
+	Point playerPosition;
 	int localWidth;
 	int localHeight;
-	Vec3 bufferPosition;
-	Vec3 bufferSize;
-	Vec3 bufferRotation;
+	Point bufferPosition;
+	Point bufferSize;
+	Point bufferRotation;
+	Point bufferPlayerPosition;
 	int bufferWidth;
 	int bufferHeight;
 	unsigned int VBO;
 	unsigned int VAO;
 	unsigned int EBO;
-	void Move(Vec3);
-	void Scale(Vec3, Vec3);
-	void Rotate(Vec3, Vec3);
 	void updateBuffer();
 	void updateWorldPoints();
 };
