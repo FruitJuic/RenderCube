@@ -197,9 +197,9 @@ int main()
 		xMove = 0.0f;
 		yMove = 0.0f;
 		zMove = 0.0f;
-		xRotate = 0.0f;
-		yRotate = 0.0f;
-		zRotate = 0.0f;
+		modeX = 0.0f;
+		modeY = 0.0f;
+		modeZ = 0.0f;
 
 		for (Shape& activeObject : shapes) {
 			unsigned int VAO = activeObject.getVertex(playerPosition, localWidth, localHeight);
