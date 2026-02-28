@@ -28,11 +28,19 @@ float playerMoveZ = 0.0f;
 float modeX = 0.0f;
 float modeY = 0.0f;
 float modeZ = 0.0f;
+float moveSpeed = 1.0f;
 float modeSpeed[3] = {1.0f, 0.01f, 0.5f,};
 // 0=Object Spawn, 1=Object Move, 2=Object Rotate, 3=Object Scale
 int mode = 0;
 int modeObject = 0;
+int spawnObject = 0;
 bool cycleObject = false;
+bool cycleProcessed = true;
+bool spawn = false;
+bool spawnProcessed = true;
+bool deleteObject = false;
+bool deleteProcessed = true;
+bool resetObject = false;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -58,28 +66,49 @@ void processInput(GLFWwindow *window)
 		playerMoveX -= moveSpeed;
 	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		playerMoveX += moveSpeed;
-	if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		modeX += modeSpeed[mode];
-	if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		modeX -= modeSpeed[mode];
+	if(glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+		modeY += modeSpeed[mode-1];
+	if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+		modeY -= modeSpeed[mode-1];
 	if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		modeY -= modeSpeed[mode];
+		modeZ -= modeSpeed[mode-1];
 	if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		modeY += modeSpeed[mode];
+		modeZ += modeSpeed[mode-1];
 	if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		modeZ += modeSpeed[mode];
+		modeX -= modeSpeed[mode-1];
 	if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		modeZ -= modeSpeed[mode];
-	if(glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
-		mode = 0;
+		modeX += modeSpeed[mode-1];
 	if(glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+		mode = 0;
+	if(glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
 		mode = 1;
-	if(glfwGetKey(window, GLFW_KEY_2) == GLFW_KEY_PRESS)
+	if(glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
 		mode = 2;
-	if(glfwGetKey(window, GLFW_KEY_3) == GLFW_KEY_PRESS)
+	if(glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
 		mode = 3;
-	if(glfwGetKey(window, GLFW_KEY_T) == GLFW_KEY_RELEASE)
+	if(glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS && cycleProcessed)
+	{
 		cycleObject = true;
+		cycleProcessed = false;
+	}
+	if(glfwGetKey(window, GLFW_KEY_T) == GLFW_RELEASE)
+		cycleProcessed = true;
+	if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && spawnProcessed)
+	{
+		spawn = true;
+		spawnProcessed = false;
+	}
+	if(glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS && deleteProcessed)
+	{
+		deleteObject = true;
+		deleteProcessed = false;
+	}
+	if(glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_RELEASE)
+		deleteProcessed = true;
+	if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE)
+		spawnProcessed = true;
+	if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+		resetObject = true;
 }
 
 int main()
@@ -155,11 +184,11 @@ int main()
 	// End shader setup
 
 	Point origin = Point(0, 0, 0);
+	ShapeType shapeTypes[] = {CUBE, PYRAMID};
 
 	Shape cube = Shape(origin, Point(50.0f, 50.0f, 50.0f), CUBE);
-	Shape cube2 = Shape(Point(100, 0, 0), Point(50.0f, 50.0f, 50.0f), CUBE);
 	Point playerPosition = Point(0, 0, 0);
-	std::vector<Shape> shapes = {cube, cube2};
+	std::vector<Shape> shapes = {cube};
 
 	while(!glfwWindowShouldClose(window))
 	{
@@ -171,32 +200,77 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		playerPosition.Translate(xMove, yMove, zMove);
+		playerPosition.Translate(playerMoveX, playerMoveY, playerMoveZ);
 
-		if(cycleObject)
+		if(cycleObject && !cycleProcessed && mode == 0)
+		{
+			++spawnObject;
+			if(spawnObject >= sizeof(shapeTypes) - 1)
+				spawnObject = 0;
+			cycleObject = false;
+		}
+
+		if(cycleObject && !cycleProcessed && mode != 0)
 		{
 			++modeObject;
 			if(modeObject >= shapes.size())
 				modeObject = 0;
 			cycleObject = false;
 		}
-		
-		if(mode == 1)
+
+		if(deleteObject && !deleteProcessed)
 		{
-			shapes[modeObject].Move(Point(modeX, modeY, modeZ));
-		}
-		else if(mode == 2)
-		{
-			shapes[modeObject].Rotate(Point(modeX, modeY, modeZ));
-		}
-		else if(mode == 3)
-		{
-			shapes[modeObject].Scale(Point(modeX, modeY, modeZ))
+			if(shapes.size() > 0)
+			{
+				shapes.erase(shapes.begin() + modeObject);
+				if(modeObject >= shapes.size())
+					modeObject = 0;
+			}
+			deleteObject = false;
 		}
 
-		xMove = 0.0f;
-		yMove = 0.0f;
-		zMove = 0.0f;
+		if(mode == 0)
+		{
+			if(spawn && !spawnProcessed)
+			{
+				Point spawnPosition = playerPosition;
+				shapes.push_back(Shape(spawnPosition, Point(50.0f, 50.0f, 50.0f), shapeTypes[spawnObject]));
+				modeObject = shapes.size() - 1;
+				spawn = false;
+			}
+		}
+		
+		if(mode == 1 && shapes.size() > 0)
+		{
+			shapes[modeObject].Move(Point(modeX, modeY, modeZ));
+			if(resetObject)
+			{
+				shapes[modeObject].ResetPosition();
+				resetObject = false;
+			}
+		}
+		else if(mode == 2 && shapes.size() > 0)
+		{
+			shapes[modeObject].Rotate(Point(modeX, modeY, modeZ));
+			if(resetObject)
+			{
+				shapes[modeObject].ResetRotation();
+				resetObject = false;
+			}
+		}
+		else if(mode == 3 && shapes.size() > 0)
+		{
+			shapes[modeObject].Scale(Point(modeX, modeY, modeZ));
+			if(resetObject)
+			{
+				shapes[modeObject].ResetScale();
+				resetObject = false;
+			}
+		}
+
+		playerMoveX = 0.0f;
+		playerMoveY = 0.0f;
+		playerMoveZ = 0.0f;
 		modeX = 0.0f;
 		modeY = 0.0f;
 		modeZ = 0.0f;

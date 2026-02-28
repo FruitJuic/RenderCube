@@ -32,6 +32,25 @@ std::vector<unsigned int> cubeIndices = {
 	3, 7 // DH
 };
 
+std::vector<Point> pyramidPoints = {
+	Point(0, 1, 0), // A 0
+	Point(-1, -1, -1), // B 1
+	Point(1, -1, -1), // C 2
+	Point(1, -1, 1), // D 3
+	Point(-1, -1, 1) // E 4
+};
+
+std::vector<unsigned int> pyramidIndices = { 
+	0, 1, // AB
+	0, 2, // AC
+	0, 3, // AD
+	0, 4, // AE
+	1, 2, // BC
+	2, 3, // CD
+	3, 4, // DE
+	4, 1 // EB
+};
+
 
 Shape::Shape(Point _position, Point _size, ShapeType type)
 {
@@ -48,6 +67,10 @@ Shape::Shape(Point _position, Point _size, ShapeType type)
 		points = cubePoints;
 		indices = cubeIndices;
 		break;
+	case PYRAMID:
+		points = pyramidPoints;
+		indices = pyramidIndices;
+		break;
 	default:
 		break;
 	}
@@ -55,7 +78,7 @@ Shape::Shape(Point _position, Point _size, ShapeType type)
 
 void Shape::Rotate(Point newRotation)
 {
-	rotation.Translate(newRotation)
+	rotation.Translate(newRotation.x, newRotation.y, newRotation.z);
 }
 
 void Shape::SetRotation(Point newRotation)
@@ -70,7 +93,7 @@ void Shape::ResetRotation()
 
 void Shape::Move(Point newPosition)
 {
-	position.Translate(newPosition);
+	position.Translate(newPosition.x, newPosition.y, newPosition.z);
 }
 
 void Shape::SetPosition(Point newPosition)
@@ -85,7 +108,7 @@ void Shape::ResetPosition()
 
 void Shape::Scale(Point newSize)
 {
-	size.Translate(newSize)
+	size.Translate(newSize.x, newSize.y, newSize.z);
 }
 
 void Shape::SetScale(Point newSize)
@@ -164,18 +187,18 @@ void Shape::updateWorldPoints()
 	}
 
 	Point interPosition = position;
-	interPosition.Translate(-playerPosition.x, -playerPosition.y, -playerPosition.z)
+	interPosition.Translate(-playerPosition.x, -playerPosition.y, -playerPosition.z);
 
 	for (Point& point : worldPoints) {
 		point.Translate(interPosition.x, interPosition.y, interPosition.z);
 	}
 
 	for (Point& point : worldPoints) {
-		point.Scale(size.x, size.y, size.z, position.x, position.y, position.z);
+		point.Scale(size.x, size.y, size.z, interPosition.x, interPosition.y, interPosition.z);
 	}
 
 	for (Point& point : worldPoints) {
-		point.Rotate(rotation.x, rotation.y, rotation.z, position.x, position.y, position.z);
+		point.Rotate(rotation.x, rotation.y, rotation.z, interPosition.x, interPosition.y, interPosition.z);
 	}
 }
 

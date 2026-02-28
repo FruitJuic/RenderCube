@@ -5,7 +5,8 @@
 #include <vector>
 
 enum ShapeType {
-	CUBE
+	CUBE,
+	PYRAMID
 }; 
 
 class Shape
